@@ -1,0 +1,34 @@
+{
+  "name": "ArusLaut — Nias Selatan & P. Batu",
+  "short_name": "ArusLaut",
+  "description": "Pemantauan arus laut kawasan Nias Selatan, Kep. Batu, Tello, Pini, Memong, Bais.",
+  "start_url": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "theme_color": "#0b1520",
+  "background_color": "#0b1520",
+  "lang": "id",
+  "categories": ["navigation", "weather", "utilities"],
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Pulau Tello",
+      "short_name": "P. Tello",
+      "description": "Lihat arus Pulau Tello",
+      "url": "./"
+    }
+  ]
+}
