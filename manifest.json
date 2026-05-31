@@ -1,6 +1,6 @@
 {
-  "name": "ArusLaut — Nias Selatan & P. Batu",
-  "short_name": "ArusLaut",
+  "name": "Arus Laut Tello",
+  "short_name": "Arus Laut Tello",
   "description": "Pemantauan arus laut kawasan Nias Selatan, Kep. Batu, Tello, Pini, Memong, Bais.",
   "start_url": "./",
   "display": "standalone",
