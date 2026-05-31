@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ArusLaut — Nias Selatan, P. Batu, Tello & P. Pini</title>
+
+<!-- ═══ PWA META TAGS ═══ -->
+<meta name="application-name" content="ArusLaut">
+<meta name="description" content="Pemantauan dan perkiraan arus laut kawasan Nias Selatan, Kepulauan Batu, Tello, Pini, Memong, dan Bais.">
+<meta name="theme-color" content="#0b1520">
+<meta name="background-color" content="#0b1520">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="ArusLaut">
+
+<!-- ═══ MANIFEST LINK ═══ -->
+<link rel="manifest" href="#" id="manifestLink">
+
+<!-- ═══ ICONS (inline SVG sebagai data URI) ═══ -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230b1520'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle'%3E🌊%3C/text%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='80' fill='%230b1520'/%3E%3Ctext x='256' y='340' font-size='280' text-anchor='middle'%3E🌊%3C/text%3E%3C/svg%3E">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Barlow+Condensed:wght@400;600;700&display=swap');
+
+:root {
+  --ink:#0b1520; --deep:#0d1e2e; --panel:#102030;
+  --card:rgba(16,32,50,0.95); --border:rgba(0,180,220,0.18);
+  --accent:#00c8e8; --accent2:#00e8a0; --warn:#f0a000; --danger:#e83060;
+  --text:#c8dde8; --muted:#4a7080; --glow:0 0 20px rgba(0,200,230,0.2);
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--ink);color:var(--text);font-family:'Barlow',sans-serif;min-height:100vh;overflow-x:hidden;}
+
+/* bg ambiance */
+body::before{content:'';position:fixed;inset:0;
+  background:radial-gradient(ellipse 70% 50% at 30% 80%,rgba(0,50,100,.4) 0,transparent 60%),
+             radial-gradient(ellipse 50% 40% at 80% 20%,rgba(0,80,120,.25) 0,transparent 55%);
+  pointer-events:none;z-index:0;}
+
+.wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:16px 14px 60px;}
+
+/* ── HEADER ── */
+header{display:flex;align-items:center;justify-content:space-between;
+  padding:12px 0 18px;border-bottom:1px solid var(--border);margin-bottom:20px;flex-wrap:wrap;gap:10px;}
+.brand{display:flex;align-items:center;gap:10px;}
+.brand-icon{width:38px;height:38px;border-radius:10px;
+  background:linear-gradient(135deg,var(--accent),#005570);
+  display:flex;align-items:center;justify-content:center;font-size:20px;
+  box-shadow:var(--glow);}
+.brand-name{font-family:'Bebas Neue',sans-serif;font-size:26px;color:var(--accent);letter-spacing:1px;line-height:1;}
+.brand-sub{font-size:9px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;display:block;margin-top:1px;}
+.live-pill{display:flex;align-items:center;gap:6px;
+  background:rgba(0,232,160,.08);border:1px solid rgba(0,232,160,.2);
+  padding:5px 12px;border-radius:20px;font-size:10px;color:var(--accent2);letter-spacing:1px;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--accent2);animation:blink 1.6s infinite;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ── 2-COL LAYOUT ── */
+.layout{display:grid;grid-template-columns:280px 1fr;gap:16px;align-items:start;}
+@media(max-width:700px){.layout{grid-template-columns:1fr;}}
+
+/* ── LEFT: location list ── */
+.loc-panel{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
+.loc-panel-head{padding:12px 14px;border-bottom:1px solid var(--border);
+  font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+  color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;}
+
+.loc-group-title{
+  padding:7px 14px 4px;
+  font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;
+  border-top:1px solid rgba(0,180,220,.08);margin-top:2px;}
+.loc-group-title:first-of-type{border-top:none;margin-top:0;}
+
+.loc-btn{
+  display:flex;align-items:center;gap:10px;
+  width:100%;background:none;border:none;
+  padding:9px 14px;cursor:pointer;text-align:left;
+  border-bottom:1px solid rgba(0,180,220,.06);
+  transition:background .15s;
+}
+.loc-btn:hover{background:rgba(0,200,230,.06);}
+.loc-btn.active{background:rgba(0,200,230,.12);border-left:3px solid var(--accent);}
+.loc-btn.active .loc-btn-name{color:var(--accent);}
+
+.loc-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;border:1.5px solid rgba(255,255,255,.5);}
+.loc-btn-text{flex:1;}
+.loc-btn-name{font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;color:var(--text);display:block;}
+.loc-btn-desc{font-size:9px;color:var(--muted);display:block;margin-top:1px;line-height:1.3;}
+.loc-spd{font-family:'Bebas Neue',sans-serif;font-size:16px;flex-shrink:0;}
+
+/* ── RIGHT: data panel ── */
+.data-panel{display:flex;flex-direction:column;gap:14px;}
+
+/* selected location title */
+.sel-header{
+  background:var(--card);border:1px solid var(--border);border-radius:14px;
+  padding:14px 16px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.sel-name{font-family:'Bebas Neue',sans-serif;font-size:28px;color:var(--accent);line-height:1;}
+.sel-meta{font-size:11px;color:var(--muted);}
+.sel-coords{font-size:10px;color:var(--muted);margin-top:2px;}
+.cond-pill{
+  margin-left:auto;padding:6px 14px;border-radius:20px;
+  font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;
+  letter-spacing:.5px;text-transform:uppercase;
+}
+.pill-calm{background:rgba(0,232,160,.15);color:var(--accent2);border:1px solid rgba(0,232,160,.3);}
+.pill-mod {background:rgba(240,160,0,.15);color:var(--warn);border:1px solid rgba(240,160,0,.3);}
+.pill-dang{background:rgba(232,48,96,.15);color:var(--danger);border:1px solid rgba(232,48,96,.3);}
+
+/* metric grid */
+.metric-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+@media(max-width:700px){.metric-grid{grid-template-columns:repeat(2,1fr);}}
+.metric{
+  background:var(--card);border:1px solid var(--border);border-radius:12px;
+  padding:12px 14px;position:relative;overflow:hidden;
+}
+.metric::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:12px 12px 0 0;}
+.m-spd::before{background:var(--accent);}
+.m-dir::before{background:var(--accent2);}
+.m-tmp::before{background:var(--warn);}
+.m-wav::before{background:#a060ff;}
+.m-label{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:7px;}
+.m-val{font-family:'Bebas Neue',sans-serif;font-size:32px;line-height:1;}
+.m-spd .m-val{color:var(--accent);}
+.m-dir .m-val{color:var(--accent2);font-size:22px;}
+.m-tmp .m-val{color:var(--warn);}
+.m-wav .m-val{color:#a060ff;}
+.m-unit{font-size:10px;color:var(--muted);margin-top:3px;}
+.compass-row{display:flex;align-items:center;gap:6px;margin-top:5px;}
+.cmp-svg{width:34px;height:34px;flex-shrink:0;}
+
+/* section card */
+.sec-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;}
+.sec-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;
+  color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px;}
+
+/* chart */
+canvas{display:block;width:100%;border-radius:6px;}
+
+/* depth slider */
+.depth-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.depth-row label{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;}
+input[type=range]{flex:1;-webkit-appearance:none;height:3px;border-radius:2px;
+  background:var(--border);cursor:pointer;outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;
+  width:14px;height:14px;border-radius:50%;background:var(--accent);
+  box-shadow:0 0 8px rgba(0,200,230,.5);cursor:pointer;}
+.depth-num{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);min-width:48px;text-align:right;}
+.depth-result{display:flex;align-items:center;gap:8px;}
+.depth-result span{font-size:10px;color:var(--muted);}
+#depthSpeed{font-family:'Bebas Neue',sans-serif;font-size:24px;color:var(--accent);}
+
+/* forecast table */
+.fc-row{display:grid;grid-template-columns:40px 50px 1fr 55px;
+  gap:6px;align-items:center;padding:7px 0;
+  border-bottom:1px solid rgba(0,180,220,.07);font-size:11px;}
+.fc-row:last-child{border-bottom:none;}
+.fc-row.hdr{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;padding-bottom:4px;}
+.fc-time{color:var(--muted);font-size:10px;}
+.fc-spd{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent);}
+.fc-bar-wrap{height:3px;background:rgba(0,180,220,.1);border-radius:2px;}
+.fc-bar{height:100%;border-radius:2px;transition:width .5s;}
+.badge{font-size:8px;font-weight:700;padding:3px 6px;border-radius:4px;
+  text-transform:uppercase;letter-spacing:.3px;text-align:center;display:block;}
+.b-calm{background:rgba(0,232,160,.15);color:var(--accent2);}
+.b-mod {background:rgba(240,160,0,.15);color:var(--warn);}
+.b-dang{background:rgba(232,48,96,.15);color:var(--danger);}
+
+/* extra info */
+.extra-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.extra-item{background:rgba(0,0,0,.25);border:1px solid var(--border);border-radius:8px;padding:9px 11px;}
+.extra-item .el{font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;}
+.extra-item .ev{font-size:12px;font-weight:600;}
+
+/* map area (SVG schematic) */
+.map-card{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;}
+.map-inner{position:relative;width:100%;padding-bottom:56%;background:#06151f;}
+.map-inner svg{position:absolute;inset:0;width:100%;height:100%;}
+.map-dot{cursor:pointer;transition:r .2s;}
+
+/* direction arrow in list */
+.loc-arrow{flex-shrink:0;display:flex;flex-direction:column;align-items:center;gap:1px;}
+.loc-arrow svg{display:block;}
+.loc-arrow-deg{font-size:8px;color:var(--muted);line-height:1;text-align:center;}
+.map-dot:hover{r:9;}
+.map-label{font-family:'Barlow Condensed',sans-serif;font-size:11px;fill:#c8dde8;pointer-events:none;}
+.map-label-sub{font-size:8px;fill:#4a7080;}
+
+footer{text-align:center;font-size:9px;color:var(--muted);padding-top:18px;
+  border-top:1px solid var(--border);margin-top:8px;letter-spacing:1px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<header>
+  <div class="brand">
+    <div class="brand-icon">🌊</div>
+    <div>
+      <div class="brand-name">ArusLaut</div>
+      <span class="brand-sub">Nias Selatan · P. Batu · Tello · Pini · Memong · Bais</span>
+    </div>
+  </div>
+  <div class="live-pill"><div class="live-dot"></div>LIVE SIM</div>
+</header>
+
+<!-- LAYOUT -->
+<div class="layout">
+
+  <!-- LEFT: location list -->
+  <div class="loc-panel">
+    <div class="loc-panel-head">📍 Pilih Lokasi</div>
+
+    <div class="loc-group-title">Kepulauan Batu Utama</div>
+    <!-- buttons injected by JS -->
+    <div id="locList"></div>
+  </div>
+
+  <!-- RIGHT: data -->
+  <div class="data-panel">
+
+    <!-- selected header -->
+    <div class="sel-header" id="selHeader">
+      <div>
+        <div class="sel-name" id="selName">—</div>
+        <div class="sel-meta" id="selMeta">Klik lokasi untuk melihat data arus</div>
+        <div class="sel-coords" id="selCoords"></div>
+      </div>
+      <div class="cond-pill pill-calm" id="condPill">—</div>
+    </div>
+
+    <!-- metrics -->
+    <div class="metric-grid">
+      <div class="metric m-spd">
+        <div class="m-label">Kecepatan</div>
+        <div class="m-val" id="mSpd">—</div>
+        <div class="m-unit">knot</div>
+      </div>
+      <div class="metric m-dir">
+        <div class="m-label">Arah Arus</div>
+        <div class="m-val" id="mDir">—</div>
+        <div class="compass-row">
+          <svg class="cmp-svg" viewBox="0 0 34 34" id="cmpSvg">
+            <circle cx="17" cy="17" r="15" fill="none" stroke="rgba(0,200,230,.15)" stroke-width="1"/>
+            <text x="17" y="7"  fill="#4a7080" font-size="5" text-anchor="middle" font-family="monospace">U</text>
+            <text x="17" y="32" fill="#4a7080" font-size="5" text-anchor="middle" font-family="monospace">S</text>
+            <text x="4"  y="19" fill="#4a7080" font-size="5" text-anchor="middle" font-family="monospace">B</text>
+            <text x="30" y="19" fill="#4a7080" font-size="5" text-anchor="middle" font-family="monospace">T</text>
+            <line id="needle" x1="17" y1="17" x2="17" y2="4" stroke="#00e8a0" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="17" cy="17" r="2" fill="#00e8a0"/>
+          </svg>
+          <span id="mDeg" style="font-size:10px;color:var(--muted)">—°</span>
+        </div>
+      </div>
+      <div class="metric m-tmp">
+        <div class="m-label">Suhu Laut</div>
+        <div class="m-val" id="mTemp">—</div>
+        <div class="m-unit">°C</div>
+      </div>
+      <div class="metric m-wav">
+        <div class="m-label">Gelombang</div>
+        <div class="m-val" id="mWave">—</div>
+        <div class="m-unit">meter</div>
+      </div>
+    </div>
+
+    <!-- SVG schematic map -->
+    <div class="map-card">
+      <div style="padding:10px 14px 6px;border-bottom:1px solid var(--border)">
+        <span style="font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:1.5px;">Peta Skematik Kawasan</span>
+      </div>
+      <div class="map-inner">
+        <svg id="mapSvg" viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="og" cx="50%" cy="60%" r="70%">
+              <stop offset="0%" stop-color="#0a2035"/>
+              <stop offset="100%" stop-color="#060f18"/>
+            </radialGradient>
+            <radialGradient id="sel" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stop-color="#00c8e8" stop-opacity=".1"/>
+              <stop offset="100%" stop-color="#00c8e8" stop-opacity="0"/>
+            </radialGradient>
+            <marker id="arr" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="rgba(0,200,230,.3)"/>
+            </marker>
+          </defs>
+          <rect width="900" height="420" fill="url(#og)"/>
+
+          <!-- Grid lines -->
+          <g stroke="rgba(0,180,220,.05)" stroke-width="1">
+            <line x1="0" y1="140" x2="900" y2="140"/>
+            <line x1="0" y1="280" x2="900" y2="280"/>
+            <line x1="180" y1="0" x2="180" y2="420"/>
+            <line x1="360" y1="0" x2="360" y2="420"/>
+            <line x1="540" y1="0" x2="540" y2="420"/>
+            <line x1="720" y1="0" x2="720" y2="420"/>
+          </g>
+
+          <!-- Coord labels (approximate) -->
+          <g fill="#2a4050" font-size="8" font-family="monospace" text-anchor="middle">
+            <text x="40"  y="415">97.25°T</text>
+            <text x="220" y="415">97.50°T</text>
+            <text x="398" y="415">97.75°T</text>
+            <text x="576" y="415">98.00°T</text>
+            <text x="754" y="415">98.25°T</text>
+            <text x="875" y="415">98.50°T</text>
+          </g>
+          <g fill="#2a4050" font-size="8" font-family="monospace" text-anchor="end">
+            <text x="38" y="44">0.65°LU</text>
+            <text x="38" y="164">0.40°LU</text>
+            <text x="38" y="224">0.20°LU</text>
+            <text x="38" y="284">0.0°</text>
+            <text x="38" y="344">0.35°LS</text>
+            <text x="38" y="400">0.65°LS</text>
+          </g>
+
+          <!-- Mainland Sumatra (left edge) -->
+          <path d="M0,0 Q35,50 25,140 Q12,230 28,320 Q18,370 0,420 Z"
+            fill="#0d2030" stroke="rgba(0,200,230,.12)" stroke-width="1"/>
+
+          <!-- Nias Island — occupies roughly lng 97.50–97.70, lat 1.5 to -0.2
+               But only southern tip is in our view, as western coast -->
+          <!-- Western coast of Nias (barat = left side of our map, lat 0.6 to -0.1) -->
+          <path d="M560,30 Q590,60 600,110 Q610,160 595,220 Q580,265 565,290 Q548,310 535,295 Q525,275 530,240 Q538,200 528,160 Q518,120 530,75 Q542,45 560,30 Z"
+            fill="#0d2030" stroke="rgba(0,200,230,.18)" stroke-width="1"/>
+          <text x="572" y="168" fill="#3a6070" font-size="10" text-anchor="middle"
+            font-family="'Barlow Condensed',sans-serif" font-weight="600">NIAS</text>
+          <text x="572" y="180" fill="#2a4050" font-size="7" text-anchor="middle"
+            font-family="monospace">(barat)</text>
+
+          <!-- P. Tello (small island shape) -->
+          <ellipse cx="378" cy="302" rx="12" ry="8" fill="#0e2535" stroke="rgba(0,200,230,.25)" stroke-width="1"/>
+          <!-- P. Tanabala -->
+          <ellipse cx="214" cy="342" rx="10" ry="7" fill="#0e2535" stroke="rgba(0,200,230,.2)" stroke-width="1"/>
+          <!-- P. Tanahmas -->
+          <ellipse cx="377" cy="184" rx="10" ry="6" fill="#0e2535" stroke="rgba(0,200,230,.2)" stroke-width="1"/>
+          <!-- P. Sigata -->
+          <ellipse cx="322" cy="278" rx="7" ry="5" fill="#0e2535" stroke="rgba(0,200,230,.2)" stroke-width="1"/>
+          <!-- P. Batu Selatan group -->
+          <ellipse cx="322" cy="378" rx="9" ry="6" fill="#0e2535" stroke="rgba(0,200,230,.2)" stroke-width="1"/>
+          <!-- Kep. Hibala -->
+          <ellipse cx="268" cy="398" rx="11" ry="6" fill="#0e2535" stroke="rgba(0,200,230,.2)" stroke-width="1"/>
+
+          <!-- EASTERN ISLANDS -->
+          <!-- P. Memong -->
+          <ellipse cx="514" cy="256" rx="9" ry="6" fill="#0e2535" stroke="rgba(0,200,230,.25)" stroke-width="1"/>
+          <!-- P. Bais -->
+          <ellipse cx="660" cy="218" rx="10" ry="7" fill="#0e2535" stroke="rgba(0,200,230,.25)" stroke-width="1"/>
+          <!-- P. Pini — larger -->
+          <ellipse cx="756" cy="164" rx="18" ry="10" fill="#0e2535" stroke="rgba(0,200,230,.28)" stroke-width="1.2"/>
+          <text x="756" y="162" fill="#3a5060" font-size="8" text-anchor="middle"
+            font-family="'Barlow Condensed',sans-serif">P. PINI</text>
+
+          <!-- Current flow arrows — west (Samudera Hindia) -->
+          <g stroke="rgba(0,200,230,.14)" stroke-width="1.5" fill="none" marker-end="url(#arr)">
+            <path d="M55,100 Q200,90 340,85"/>
+            <path d="M55,200 Q200,195 340,190"/>
+            <path d="M55,310 Q180,300 310,295"/>
+          </g>
+          <!-- Current flow arrows — east (Selat / Samudera Pasifik) -->
+          <g stroke="rgba(0,232,160,.10)" stroke-width="1.5" fill="none" marker-end="url(#arr)">
+            <marker id="arr2" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="rgba(0,232,160,.25)"/>
+            </marker>
+            <path d="M880,120 Q780,130 670,140" marker-end="url(#arr2)"/>
+            <path d="M880,200 Q780,200 670,200" marker-end="url(#arr2)"/>
+            <path d="M880,300 Q780,295 670,290" marker-end="url(#arr2)"/>
+          </g>
+
+          <!-- Glow under selected -->
+          <circle id="mapGlow" cx="-99" cy="-99" r="35" fill="url(#sel)" opacity="0"/>
+
+          <!-- Island dots — JS injected -->
+          <g id="mapDots"></g>
+
+          <!-- Compass rose -->
+          <g transform="translate(855,375)">
+            <circle r="22" fill="rgba(6,21,31,.85)" stroke="rgba(0,180,220,.2)" stroke-width="1"/>
+            <text y="-13" fill="#4a7080" font-size="6" text-anchor="middle" font-family="monospace">U</text>
+            <text y="19"  fill="#4a7080" font-size="6" text-anchor="middle" font-family="monospace">S</text>
+            <text x="-15" y="3" fill="#4a7080" font-size="6" text-anchor="middle" font-family="monospace">B</text>
+            <text x="15"  y="3" fill="#4a7080" font-size="6" text-anchor="middle" font-family="monospace">T</text>
+            <line x1="0" y1="0" x2="0" y2="-15" stroke="#00c8e8" stroke-width="2" stroke-linecap="round"/>
+          </g>
+
+          <!-- Scale bar -->
+          <g transform="translate(36,405)">
+            <line x1="0" y1="0" x2="55" y2="0" stroke="#3a5060" stroke-width="1.5"/>
+            <line x1="0" y1="-3" x2="0" y2="3" stroke="#3a5060" stroke-width="1.5"/>
+            <line x1="55" y1="-3" x2="55" y2="3" stroke="#3a5060" stroke-width="1.5"/>
+            <text x="27" y="-5" fill="#3a5060" font-size="7" text-anchor="middle" font-family="monospace">~50 km</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+
+    <!-- chart -->
+    <div class="sec-card">
+      <div class="sec-title">Grafik Kecepatan Arus 24 Jam</div>
+      <canvas id="chart" height="90"></canvas>
+    </div>
+
+    <!-- depth -->
+    <div class="sec-card">
+      <div class="sec-title">Profil Kedalaman</div>
+      <div class="depth-row">
+        <label>Kedalaman</label>
+        <input type="range" id="dSlider" min="0" max="100" step="5" value="20" oninput="onDepth(this.value)">
+        <div class="depth-num" id="dVal">0 m</div>
+      </div>
+      <div class="depth-result">
+        <span>Kecepatan pd kedalaman ini:</span>
+        <span id="depthSpeed">—</span>
+        <span>knot</span>
+      </div>
+    </div>
+
+    <!-- forecast -->
+    <div class="sec-card">
+      <div class="sec-title">Perkiraan Arus 12 Jam ke Depan</div>
+      <div class="fc-row hdr">
+        <span>JAM</span><span>KNOT</span><span>ARAH & BAR</span><span>KONDISI</span>
+      </div>
+      <div id="fcBody"></div>
+    </div>
+
+    <!-- extra -->
+    <div class="sec-card">
+      <div class="sec-title">Data Oseanografi & Cuaca</div>
+      <div class="extra-grid">
+        <div class="extra-item"><div class="el">Salinitas</div><div class="ev" id="eSal">—</div></div>
+        <div class="extra-item"><div class="el">Pasang Surut</div><div class="ev" id="eTide">—</div></div>
+        <div class="extra-item"><div class="el">Kec. Angin</div><div class="ev" id="eWind">—</div></div>
+        <div class="extra-item"><div class="el">Visibilitas</div><div class="ev" id="eVis">—</div></div>
+        <div class="extra-item"><div class="el">Jenis Arus</div><div class="ev" id="eCurType">—</div></div>
+        <div class="extra-item"><div class="el">Arus Pasut</div><div class="ev" id="eTidal">—</div></div>
+        <div class="extra-item"><div class="el">Kedalaman Maks</div><div class="ev" id="eDepth">—</div></div>
+        <div class="extra-item"><div class="el">Pola Musim</div><div class="ev" id="eSeason">—</div></div>
+      </div>
+    </div>
+
+  </div><!-- /data-panel -->
+</div><!-- /layout -->
+
+<!-- ═══ INSTALL BANNER (muncul otomatis jika belum diinstall) ═══ -->
+<div id="installBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9999;
+  background:linear-gradient(135deg,#0d2035,#102840);
+  border-top:1px solid rgba(0,200,230,0.3);
+  padding:12px 16px;align-items:center;gap:12px;
+  box-shadow:0 -4px 20px rgba(0,0,0,0.5);">
+  <div style="font-size:22px;flex-shrink:0">🌊</div>
+  <div style="flex:1">
+    <div style="font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;color:#00c8e8;">
+      Install ArusLaut
+    </div>
+    <div style="font-size:10px;color:#4a7080;margin-top:1px;">
+      Tambah ke layar utama — bisa dipakai offline
+    </div>
+  </div>
+  <button onclick="installApp()" style="
+    background:linear-gradient(135deg,#00c8e8,#0070a0);
+    border:none;color:#0b1520;font-family:'Barlow Condensed',sans-serif;
+    font-size:13px;font-weight:700;padding:8px 16px;border-radius:8px;
+    cursor:pointer;white-space:nowrap;letter-spacing:0.5px;">
+    INSTALL
+  </button>
+  <button onclick="this.parentElement.style.display='none'" style="
+    background:none;border:none;color:#4a7080;font-size:18px;
+    cursor:pointer;padding:4px;line-height:1;flex-shrink:0;">✕</button>
+</div>
+
+<footer>ArusLaut v4 · Data simulasi untuk referensi navigasi · Kawasan Nias Selatan, Kep. Batu, P. Tello, P. Pini, P. Memong, P. Bais · © 2026</footer>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════
+//  LOCATION DATA
+//  Map coords: viewBox 0 0 900 420
+//  lng 97.25 → x≈40,  lng 98.75 → x≈860
+//  lat  0.65 → y≈40,  lat -1.05 → y≈380
+// ═══════════════════════════════════════════════════
+const lngToX = lng => 40  + (lng - 97.25) / 1.50 * 820;
+const latToY = lat => 40  + (0.65 - lat)  / 1.70 * 340;
+
+const LOCS = [
+  // ── Kepulauan Batu ──────────────────────────────
+  {
+    group:'Kepulauan Batu',
+    id:'tello', name:'Pulau Tello', short:'P. Tello',
+    lat:-0.420, lng:97.763,
+    speed:1.8, dir:225, temp:29.2, wave:1.0,
+    sal:'33.2 ppt', tide:'Pasang', wind:'14 kn / BD', vis:'10 km',
+    curType:'Arus campuran (pasut + angin)', tidalCur:'Moderat',
+    depth:80, season:'Muson Barat Daya dominan (Jun–Sep)',
+    desc:'Ibu kota Kec. Pulau-Pulau Batu. Arus sedang dari barat daya, dipengaruhi pasang surut 2× sehari.',
+    profile:[1.9,1.8,1.7,1.5,1.3,1.1,0.85,0.62,0.42,0.27,0.16,0.09],
+  },
+  {
+    group:'Kepulauan Batu',
+    id:'sigata', name:'Pulau Sigata', short:'Sigata',
+    lat:-0.380, lng:97.720,
+    speed:2.0, dir:210, temp:29.0, wave:1.1,
+    sal:'33.4 ppt', tide:'Surut', wind:'15 kn / BD', vis:'9 km',
+    curType:'Arus lintas selat', tidalCur:'Kuat saat surut',
+    depth:95, season:'Muson Barat Daya (Jun–Sep)',
+    desc:'Selat sempit antar pulau, arus meningkat signifikan saat surut.',
+    profile:[2.2,2.1,2.0,1.8,1.6,1.3,1.0,0.72,0.48,0.30,0.18,0.10],
+  },
+  {
+    group:'Kepulauan Batu',
+    id:'tanabala', name:'Pulau Tanabala', short:'Tanabala',
+    lat:-0.510, lng:97.582,
+    speed:1.5, dir:270, temp:29.5, wave:0.9,
+    sal:'33.0 ppt', tide:'Pasang', wind:'11 kn / B', vis:'13 km',
+    curType:'Arus angin musim', tidalCur:'Lemah–moderat',
+    depth:90, season:'Stabil sepanjang tahun',
+    desc:'Perairan barat Kep. Batu, relatif tenang. Cocok untuk perahu kecil.',
+    profile:[1.6,1.55,1.5,1.35,1.15,0.95,0.72,0.50,0.33,0.20,0.12,0.07],
+  },
+  {
+    group:'Kepulauan Batu',
+    id:'tanahmas', name:'Pulau Tanahmas', short:'Tanahmas',
+    lat:-0.180, lng:97.892,
+    speed:2.0, dir:315, temp:29.8, wave:1.1,
+    sal:'33.5 ppt', tide:'Pasang', wind:'12 kn / BL', vis:'11 km',
+    curType:'Arus campuran', tidalCur:'Moderat–kuat',
+    depth:70, season:'Muson Baratlaut (Des–Feb)',
+    desc:'Ujung utara Kep. Batu, terpengaruh kuat angin dari baratlaut saat musim barat.',
+    profile:[2.1,2.0,1.9,1.7,1.45,1.2,0.90,0.65,0.42,0.27,0.16,0.09],
+  },
+  {
+    group:'Kepulauan Batu',
+    id:'hibala', name:'Kepulauan Hibala', short:'Hibala',
+    lat:-0.880, lng:97.650,
+    speed:2.4, dir:180, temp:28.8, wave:1.4,
+    sal:'33.8 ppt', tide:'Surut', wind:'18 kn / S', vis:'8 km',
+    curType:'Arus gravitasi termal', tidalCur:'Kuat saat surut',
+    depth:140, season:'Puncak Muson Selatan (Jul–Agt)',
+    desc:'Posisi paling selatan Kep. Batu. Arus kencang dari selatan saat surut, berbahaya perahu kecil.',
+    profile:[2.6,2.5,2.4,2.2,1.9,1.6,1.2,0.85,0.55,0.35,0.20,0.10],
+  },
+  {
+    group:'Kepulauan Batu',
+    id:'batu_s', name:'P. Batu Selatan', short:'P. Batu S',
+    lat:-0.650, lng:97.720,
+    speed:2.2, dir:200, temp:29.0, wave:1.3,
+    sal:'33.6 ppt', tide:'Surut', wind:'16 kn / BD', vis:'9 km',
+    curType:'Arus gravitasi', tidalCur:'Kuat',
+    depth:120, season:'Muson Tenggara (Apr–Sep)',
+    desc:'Bagian selatan Kep. Batu dengan arus lebih kuat. Perlu perhatian khusus.',
+    profile:[2.4,2.3,2.2,2.0,1.75,1.45,1.10,0.78,0.50,0.32,0.18,0.09],
+  },
+  // ── Pulau Tello sekitar ─────────────────────────
+  {
+    group:'Sekitar Pulau Tello',
+    id:'tello_ut', name:'Perairan Utara Tello', short:'Ut. Tello',
+    lat:-0.350, lng:97.760,
+    speed:1.6, dir:240, temp:29.4, wave:0.95,
+    sal:'33.3 ppt', tide:'Pasang', wind:'13 kn / BD', vis:'11 km',
+    curType:'Arus angin', tidalCur:'Moderat',
+    depth:75, season:'Muson Barat Daya',
+    desc:'Jalur pelayaran utama dari/ke Tello. Arus relatif moderat.',
+    profile:[1.7,1.65,1.6,1.45,1.25,1.05,0.80,0.58,0.38,0.24,0.14,0.08],
+  },
+  {
+    group:'Sekitar Pulau Tello',
+    id:'tello_sel', name:'Selat Selatan Tello', short:'Sel. Tello',
+    lat:-0.490, lng:97.780,
+    speed:2.1, dir:195, temp:29.1, wave:1.15,
+    sal:'33.5 ppt', tide:'Surut', wind:'14 kn / S', vis:'10 km',
+    curType:'Arus lintas selat', tidalCur:'Kuat',
+    depth:100, season:'Muson Selatan dominan',
+    desc:'Selat selatan Tello, arus meningkat saat surut dan musim selatan.',
+    profile:[2.2,2.1,2.0,1.85,1.6,1.35,1.02,0.72,0.47,0.29,0.17,0.09],
+  },
+  // ── Nias Selatan pesisir barat ──────────────────
+  {
+    group:'Pesisir Barat Nias Selatan',
+    id:'lahomi', name:'Perairan Lahomi', short:'Lahomi',
+    lat:0.020, lng:97.970,
+    speed:1.3, dir:100, temp:30.1, wave:0.7,
+    sal:'32.8 ppt', tide:'Pasang', wind:'9 kn / T', vis:'14 km',
+    curType:'Arus pantai', tidalCur:'Lemah',
+    depth:45, season:'Stabil, lebih tenang',
+    desc:'Perairan dangkal pesisir barat Nias Selatan. Arus lemah, cocok nelayan kecil.',
+    profile:[1.4,1.35,1.3,1.15,0.95,0.75,0.56,0.38,0.24,0.15,0.09,0.05],
+  },
+  {
+    group:'Pesisir Barat Nias Selatan',
+    id:'telukdalam', name:'Teluk Dalam', short:'Teluk Dlm',
+    lat:0.580, lng:97.800,
+    speed:0.9, dir:80, temp:30.4, wave:0.5,
+    sal:'32.5 ppt', tide:'Pasang', wind:'7 kn / T', vis:'15 km',
+    curType:'Arus teluk (terlindung)', tidalCur:'Sangat lemah',
+    depth:30, season:'Terlindung sepanjang tahun',
+    desc:'Teluk terlindung, arus sangat tenang. Pelabuhan nelayan utama Nias Selatan.',
+    profile:[1.0,0.95,0.90,0.80,0.68,0.55,0.40,0.28,0.18,0.11,0.07,0.04],
+  },
+  {
+    group:'Pesisir Barat Nias Selatan',
+    id:'sawo', name:'Perairan Sawo', short:'Sawo',
+    lat:0.350, lng:97.870,
+    speed:1.1, dir:90, temp:30.2, wave:0.65,
+    sal:'32.7 ppt', tide:'Pasang', wind:'8 kn / T', vis:'14 km',
+    curType:'Arus pantai', tidalCur:'Lemah',
+    depth:40, season:'Relatif stabil',
+    desc:'Pesisir tengah Nias Selatan. Arus lemah ke timur, baik untuk nelayan tradisional.',
+    profile:[1.2,1.15,1.1,0.98,0.83,0.67,0.50,0.34,0.22,0.13,0.08,0.05],
+  },
+  // ── Jalur laut terbuka ──────────────────────────
+  {
+    group:'Perairan Terbuka',
+    id:'laut_barat', name:'Laut Barat P. Batu', short:'Laut Barat',
+    lat:-0.500, lng:97.380,
+    speed:3.2, dir:240, temp:28.2, wave:2.0,
+    sal:'34.2 ppt', tide:'Surut', wind:'20 kn / BD', vis:'7 km',
+    curType:'Arus lintas samudera (IOTC)', tidalCur:'Dominan arus termal',
+    depth:500, season:'Sangat kuat saat Muson Barat Daya',
+    desc:'Perairan terbuka barat Kep. Batu, terpengaruh arus lintas Samudera Hindia. Berbahaya.',
+    profile:[3.5,3.4,3.2,3.0,2.7,2.3,1.8,1.3,0.9,0.6,0.35,0.18],
+  },
+  // ── Timur Tello — Kepulauan Pini ────────────────
+  {
+    group:'Timur Tello & Kepulauan Pini',
+    id:'memong', name:'Pulau Memong', short:'Memong',
+    lat:-0.310, lng:98.120,
+    speed:1.7, dir:135, temp:29.6, wave:0.85,
+    sal:'33.1 ppt', tide:'Pasang', wind:'11 kn / TG', vis:'12 km',
+    curType:'Arus pasut (selat)', tidalCur:'Moderat, kuat saat surut',
+    depth:55, season:'Muson Tenggara (Apr–Sep)',
+    desc:'Pulau kecil di jalur selat antara Tello dan Nias. Arus pasut dominan dari tenggara.',
+    profile:[1.8,1.75,1.7,1.55,1.35,1.1,0.85,0.60,0.38,0.24,0.14,0.08],
+  },
+  {
+    group:'Timur Tello & Kepulauan Pini',
+    id:'pini', name:'Pulau Pini', short:'P. Pini',
+    lat:-0.100, lng:98.480,
+    speed:2.0, dir:110, temp:29.9, wave:1.0,
+    sal:'33.3 ppt', tide:'Pasang', wind:'13 kn / T', vis:'11 km',
+    curType:'Arus angin + pasut', tidalCur:'Moderat',
+    depth:85, season:'Muson Timur (Mar–Agt)',
+    desc:'Pulau Pini di Kab. Nias Selatan. Arus dari timur cukup stabil, dipengaruhi musim.',
+    profile:[2.1,2.05,2.0,1.8,1.55,1.28,0.97,0.68,0.44,0.27,0.16,0.09],
+  },
+  {
+    group:'Timur Tello & Kepulauan Pini',
+    id:'bais', name:'Pulau Bais', short:'P. Bais',
+    lat:-0.220, lng:98.310,
+    speed:1.9, dir:120, temp:29.7, wave:0.95,
+    sal:'33.2 ppt', tide:'Surut', wind:'12 kn / TG', vis:'11 km',
+    curType:'Arus campuran selat', tidalCur:'Moderat–kuat',
+    depth:70, season:'Muson Tenggara dominan',
+    desc:'Perairan Pulau Bais, jalur nelayan antar Tello–Pini. Arus tenggara di musim kering.',
+    profile:[2.0,1.95,1.9,1.72,1.5,1.24,0.94,0.66,0.43,0.27,0.16,0.09],
+  },
+  {
+    group:'Timur Tello & Kepulauan Pini',
+    id:'selat_tello_pini', name:'Selat Tello–Pini', short:'Sel. T–Pini',
+    lat:-0.200, lng:98.200,
+    speed:2.3, dir:125, temp:29.4, wave:1.1,
+    sal:'33.4 ppt', tide:'Surut', wind:'14 kn / TG', vis:'9 km',
+    curType:'Arus lintas selat', tidalCur:'Kuat saat surut',
+    depth:110, season:'Puncak Muson Tenggara (Jun–Agt)',
+    desc:'Selat utama antara Tello dan gugusan Pini. Arus bisa kencang, waspadai perahu kecil.',
+    profile:[2.5,2.4,2.3,2.1,1.85,1.55,1.18,0.83,0.53,0.33,0.19,0.10],
+  },
+  {
+    group:'Timur Tello & Kepulauan Pini',
+    id:'pini_ut', name:'Utara Pini', short:'Ut. Pini',
+    lat: 0.050, lng:98.450,
+    speed:1.5, dir:95, temp:30.2, wave:0.8,
+    sal:'33.0 ppt', tide:'Pasang', wind:'10 kn / T', vis:'13 km',
+    curType:'Arus pantai timur', tidalCur:'Lemah–moderat',
+    depth:60, season:'Relatif stabil',
+    desc:'Perairan utara Pini menuju pesisir Nias Selatan. Arus tenang dari timur.',
+    profile:[1.6,1.55,1.5,1.35,1.15,0.95,0.72,0.50,0.32,0.20,0.12,0.07],
+  },
+  {
+    group:'Timur Tello & Kepulauan Pini',
+    id:'pini_sel', name:'Selatan Pini', short:'Sel. Pini',
+    lat:-0.280, lng:98.520,
+    speed:2.2, dir:150, temp:29.3, wave:1.2,
+    sal:'33.6 ppt', tide:'Surut', wind:'15 kn / TG', vis:'10 km',
+    curType:'Arus lintas laut dalam', tidalCur:'Kuat',
+    depth:150, season:'Muson Selatan–Tenggara (Mei–Sep)',
+    desc:'Selatan Pini, terbuka ke laut dalam. Arus kuat terutama musim tenggara.',
+    profile:[2.4,2.3,2.2,2.0,1.75,1.45,1.10,0.78,0.50,0.31,0.18,0.09],
+  },
+  {
+    group:'Timur Tello & Kepulauan Pini',
+    id:'perairan_pini_timur', name:'Timur Kepulauan Pini', short:'Tim. Pini',
+    lat:-0.120, lng:98.680,
+    speed:2.6, dir:100, temp:29.1, wave:1.35,
+    sal:'33.8 ppt', tide:'Surut', wind:'17 kn / T', vis:'8 km',
+    curType:'Arus lintas samudera masuk', tidalCur:'Kuat',
+    depth:200, season:'Muson Timur kuat (Mar–Sep)',
+    desc:'Pintu masuk arus dari Selat Malaka dan Samudera Pasifik. Arus kuat dari timur.',
+    profile:[2.8,2.7,2.6,2.4,2.1,1.75,1.35,0.95,0.62,0.38,0.22,0.11],
+  },
+];
+
+// ═══════════════════════════════════════════════════
+//  BUILD LOCATION LIST
+// ═══════════════════════════════════════════════════
+
+// Mini direction arrow SVG — panah arah dengan kepala panah jelas
+function dirArrowSvg(deg, color, size=26) {
+  const cx = size/2, cy = size/2;
+  const shaft = size * 0.32;   // panjang batang dari tengah ke ujung
+  const tail  = size * 0.22;   // panjang ekor dari tengah ke belakang
+  const hw    = size * 0.18;   // lebar kepala panah (setengah)
+  const hlen  = size * 0.20;   // panjang kepala panah
+
+  const r = deg * Math.PI / 180;
+  const sinR = Math.sin(r), cosR = Math.cos(r);
+
+  // Ujung depan panah
+  const tipX = cx + shaft * sinR;
+  const tipY = cy - shaft * cosR;
+  // Pangkal kepala panah (sedikit mundur dari ujung)
+  const baseX = tipX - hlen * sinR;
+  const baseY = tipY + hlen * cosR;
+  // Dua sisi kepala
+  const l1x = baseX + hw * cosR;
+  const l1y = baseY + hw * sinR;
+  const l2x = baseX - hw * cosR;
+  const l2y = baseY - hw * sinR;
+  // Ujung ekor
+  const tailX = cx - tail * sinR;
+  const tailY = cy + tail * cosR;
+
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg" style="display:block;flex-shrink:0">
+    <circle cx="${cx}" cy="${cy}" r="${size/2-0.5}" fill="rgba(0,0,0,0.35)" stroke="${color}" stroke-width="1" stroke-opacity="0.5"/>
+    <line x1="${tailX.toFixed(2)}" y1="${tailY.toFixed(2)}" x2="${baseX.toFixed(2)}" y2="${baseY.toFixed(2)}"
+      stroke="${color}" stroke-width="2.2" stroke-linecap="round"/>
+    <polygon points="${tipX.toFixed(2)},${tipY.toFixed(2)} ${l1x.toFixed(2)},${l1y.toFixed(2)} ${l2x.toFixed(2)},${l2y.toFixed(2)}"
+      fill="${color}" stroke="${color}" stroke-width="0.5" stroke-linejoin="round"/>
+  </svg>`;
+}
+
+let activeId = null;
+const list = document.getElementById('locList');
+
+const groups = [...new Set(LOCS.map(l=>l.group))];
+groups.forEach(g => {
+  const title = document.createElement('div');
+  title.className = 'loc-group-title';
+  title.textContent = g;
+  list.appendChild(title);
+
+  LOCS.filter(l=>l.group===g).forEach(loc => {
+    const sc = speedColor(loc.speed);
+    const btn = document.createElement('button');
+    btn.className = 'loc-btn';
+    btn.id = 'lb-'+loc.id;
+    btn.innerHTML = `
+      <div class="loc-dot" style="background:${sc};box-shadow:0 0 6px ${sc}88"></div>
+      <div class="loc-btn-text">
+        <span class="loc-btn-name">${loc.name}</span>
+        <span class="loc-btn-desc">${loc.lat.toFixed(3)}°, ${loc.lng.toFixed(3)}° · ${loc.desc.substring(0,50)}…</span>
+      </div>
+      <div class="loc-arrow">
+        ${dirArrowSvg(loc.dir, sc, 24)}
+        <span class="loc-arrow-deg">${degToDir(loc.dir)}</span>
+      </div>
+      <span class="loc-spd" style="color:${sc};min-width:28px;text-align:right">${loc.speed}</span>
+    `;
+    btn.onclick = () => select(loc);
+    list.appendChild(btn);
+  });
+});
+
+// ═══════════════════════════════════════════════════
+//  BUILD SVG MAP DOTS
+// ═══════════════════════════════════════════════════
+const mapDots = document.getElementById('mapDots');
+LOCS.forEach(loc => {
+  const mx = lngToX(loc.lng);
+  const my = latToY(loc.lat);
+  const sc = speedColor(loc.speed);
+
+  // Arrow direction in SVG space (north = up = 0°, clockwise)
+  const rad = loc.dir * Math.PI / 180;
+  const sinR = Math.sin(rad), cosR = Math.cos(rad);
+  const shaft = 13, tail = 7, hw = 5, hlen = 7;
+
+  const tipX  = mx + shaft * sinR;
+  const tipY  = my - shaft * cosR;
+  const baseX = tipX - hlen * sinR;
+  const baseY = tipY + hlen * cosR;
+  const l1x = baseX + hw * cosR;
+  const l1y = baseY + hw * sinR;
+  const l2x = baseX - hw * cosR;
+  const l2y = baseY - hw * sinR;
+  const tailX = mx - tail * sinR;
+  const tailY = my + tail * cosR;
+
+  const g = document.createElementNS('http://www.w3.org/2000/svg','g');
+  g.style.cursor = 'pointer';
+  g.innerHTML = `
+    <circle class="map-dot" cx="${mx}" cy="${my}" r="7"
+      fill="${sc}" fill-opacity=".85"
+      stroke="rgba(255,255,255,.6)" stroke-width="1.5"
+      data-id="${loc.id}"
+      style="filter:drop-shadow(0 0 6px ${sc})"/>
+    <line x1="${tailX.toFixed(1)}" y1="${tailY.toFixed(1)}" x2="${baseX.toFixed(1)}" y2="${baseY.toFixed(1)}"
+      stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-opacity="0.9"/>
+    <polygon points="${tipX.toFixed(1)},${tipY.toFixed(1)} ${l1x.toFixed(1)},${l1y.toFixed(1)} ${l2x.toFixed(1)},${l2y.toFixed(1)}"
+      fill="white" fill-opacity="0.9"/>
+    <text class="map-label" x="${mx+10}" y="${my+4}">${loc.short}</text>
+    <text class="map-label-sub" x="${mx+10}" y="${my+13}">${loc.speed}kn ${degToDir(loc.dir)}</text>
+  `;
+  g.addEventListener('click', () => select(loc));
+  mapDots.appendChild(g);
+});
+
+// ═══════════════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════════════
+function speedColor(s) {
+  if(s < 1.5) return '#00e8a0';
+  if(s < 2.5) return '#f0a000';
+  return '#e83060';
+}
+function degToDir(d) {
+  const dirs=['U','TL','T','TG','S','BD','B','BL'];
+  return dirs[Math.round((d%360)/45)%8];
+}
+function getCondition(s) {
+  if(s<1.5) return {label:'TENANG ⚓', cls:'pill-calm', fc:'b-calm', badge:'TENANG'};
+  if(s<2.5) return {label:'SEDANG ⚠️', cls:'pill-mod',  fc:'b-mod',  badge:'SEDANG'};
+  return     {label:'KUAT 🚨',   cls:'pill-dang', fc:'b-dang', badge:'KUAT'};
+}
+function barColor(s) {
+  if(s<1.5) return '#00e8a0';
+  if(s<2.5) return '#f0a000';
+  return '#e83060';
+}
+
+// ═══════════════════════════════════════════════════
+//  SELECT LOCATION
+// ═══════════════════════════════════════════════════
+function select(loc) {
+  activeId = loc.id;
+  // buttons
+  document.querySelectorAll('.loc-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('lb-'+loc.id).classList.add('active');
+  document.getElementById('lb-'+loc.id).scrollIntoView({block:'nearest',behavior:'smooth'});
+
+  // map glow
+  const glow = document.getElementById('mapGlow');
+  glow.setAttribute('cx', lngToX(loc.lng));
+  glow.setAttribute('cy', latToY(loc.lat));
+  glow.setAttribute('opacity', '1');
+
+  const speed = +(loc.speed + (Math.random()-.5)*.15).toFixed(1);
+  const cond = getCondition(speed);
+
+  // Header
+  document.getElementById('selName').textContent = loc.name;
+  document.getElementById('selMeta').textContent = loc.desc;
+  document.getElementById('selCoords').textContent = `${loc.lat.toFixed(4)}°LS, ${loc.lng.toFixed(4)}°BT`;
+  const pill = document.getElementById('condPill');
+  pill.textContent = cond.label;
+  pill.className = 'cond-pill ' + cond.cls;
+
+  // Metrics
+  document.getElementById('mSpd').textContent  = speed;
+  document.getElementById('mDir').textContent  = degToDir(loc.dir);
+  document.getElementById('mDeg').textContent  = loc.dir + '°';
+  document.getElementById('mTemp').textContent = loc.temp;
+  document.getElementById('mWave').textContent = loc.wave;
+
+  // Compass needle
+  const r = loc.dir * Math.PI/180;
+  const cx=17, cy=17, len=13;
+  document.getElementById('needle').setAttribute('x2', cx + len*Math.sin(r));
+  document.getElementById('needle').setAttribute('y2', cy - len*Math.cos(r));
+
+  // Extra
+  document.getElementById('eSal').textContent     = loc.sal;
+  document.getElementById('eTide').textContent    = loc.tide;
+  document.getElementById('eWind').textContent    = loc.wind;
+  document.getElementById('eVis').textContent     = loc.vis;
+  document.getElementById('eCurType').textContent = loc.curType;
+  document.getElementById('eTidal').textContent   = loc.tidalCur;
+  document.getElementById('eDepth').textContent   = loc.depth + ' m';
+  document.getElementById('eSeason').textContent  = loc.season;
+
+  // Depth slider reset to 20m default
+  onDepth(20, loc);
+
+  // Chart & forecast
+  drawChart(loc);
+  drawForecast(loc, cond);
+}
+
+// ═══════════════════════════════════════════════════
+//  DEPTH
+// ═══════════════════════════════════════════════════
+function onDepth(val, loc) {
+  val = parseInt(val);
+  const sl = document.getElementById('dSlider');
+  sl.value = val;
+  document.getElementById('dVal').textContent = val + ' m';
+  const pct = (val/100)*100;
+  sl.style.background = `linear-gradient(to right,var(--accent) ${pct}%,var(--border) ${pct}%)`;
+  const src = loc || LOCS.find(l=>l.id===activeId);
+  if(!src) return;
+  // profile has 12 points spanning 0–100m
+  const idx = Math.min(11, Math.floor((val/100)*12));
+  document.getElementById('depthSpeed').textContent = src.profile[idx].toFixed(2);
+}
+document.getElementById('dSlider').oninput = function(){ onDepth(this.value); };
+
+// ═══════════════════════════════════════════════════
+//  CHART
+// ═══════════════════════════════════════════════════
+function drawChart(loc) {
+  const canvas = document.getElementById('chart');
+  const W = canvas.parentElement.offsetWidth - 32;
+  const H = 100;
+  canvas.width  = W * devicePixelRatio;
+  canvas.height = H * devicePixelRatio;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.scale(devicePixelRatio, devicePixelRatio);
+
+  // Tidal pattern ~12.4h cycle
+  const data = Array.from({length:24},(_,i)=>{
+    const tidal = Math.sin(i * 0.507 + 0.8) * loc.speed * 0.4;
+    const wind  = Math.cos(i * 0.26) * loc.speed * 0.15;
+    return Math.max(0.1, loc.speed + tidal + wind + (Math.random()-.5)*.12);
+  });
+
+  const pad={t:8,r:8,b:22,l:36};
+  const cw=W-pad.l-pad.r, ch=H-pad.t-pad.b;
+  const maxV = Math.max(...data)*1.12;
+  ctx.clearRect(0,0,W,H);
+
+  // Grid
+  ctx.strokeStyle='rgba(0,180,220,.07)'; ctx.lineWidth=1;
+  for(let i=0;i<=3;i++){
+    const y=pad.t+ch-(i/3)*ch;
+    ctx.beginPath(); ctx.moveTo(pad.l,y); ctx.lineTo(pad.l+cw,y); ctx.stroke();
+    ctx.fillStyle='#4a7080'; ctx.font='8px Barlow,sans-serif'; ctx.textAlign='right';
+    ctx.fillText((maxV*i/3).toFixed(1), pad.l-4, y+3);
+  }
+
+  // Fill
+  const g=ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+  g.addColorStop(0,'rgba(0,200,230,.22)'); g.addColorStop(1,'transparent');
+  ctx.beginPath();
+  data.forEach((v,i)=>{
+    const x=pad.l+(i/23)*cw, y=pad.t+ch-(v/maxV)*ch;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.lineTo(pad.l+cw,pad.t+ch); ctx.lineTo(pad.l,pad.t+ch);
+  ctx.closePath(); ctx.fillStyle=g; ctx.fill();
+
+  // Line
+  ctx.beginPath();
+  data.forEach((v,i)=>{
+    const x=pad.l+(i/23)*cw, y=pad.t+ch-(v/maxV)*ch;
+    i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);
+  });
+  ctx.strokeStyle='#00c8e8'; ctx.lineWidth=1.8; ctx.lineJoin='round'; ctx.stroke();
+
+  // Time labels
+  const now=new Date();
+  ctx.fillStyle='#4a7080'; ctx.font='8px Barlow,sans-serif'; ctx.textAlign='center';
+  [0,6,12,18,23].forEach(i=>{
+    const t=new Date(now.getTime()+i*3600000);
+    ctx.fillText(t.getHours().toString().padStart(2,'0')+':00', pad.l+(i/23)*cw, H-5);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  FORECAST
+// ═══════════════════════════════════════════════════
+function drawForecast(loc, baseCond) {
+  const body = document.getElementById('fcBody');
+  body.innerHTML = '';
+  const now = new Date();
+  const maxS = loc.speed * 1.7;
+  for(let i=0; i<12; i++){
+    const t = new Date(now.getTime()+i*3600000);
+    const h = t.getHours().toString().padStart(2,'0');
+    const tidal = Math.sin(i*0.507+0.8)*loc.speed*0.4;
+    const s = Math.max(0.1, loc.speed + tidal + (Math.random()-.5)*.1);
+    const c = getCondition(s);
+    const dirVar = loc.dir + Math.round(Math.sin(i*.4)*12);
+    const pct = Math.min(100,(s/maxS)*100);
+    const row = document.createElement('div');
+    row.className = 'fc-row';
+    row.innerHTML = `
+      <span class="fc-time">${h}:00</span>
+      <span class="fc-spd">${s.toFixed(1)}</span>
+      <div>
+        <div style="font-size:9px;color:var(--muted);margin-bottom:3px">${degToDir(dirVar)} ${dirVar}°</div>
+        <div class="fc-bar-wrap"><div class="fc-bar" style="width:${pct}%;background:${barColor(s)}"></div></div>
+      </div>
+      <span class="badge ${c.fc}">${c.badge}</span>
+    `;
+    body.appendChild(row);
+  }
+}
+
+// ═══════════════════════════════════════════════════
+//  INIT — select first spot
+// ═══════════════════════════════════════════════════
+select(LOCS[0]);
+
+window.addEventListener('resize', ()=>{
+  const cur = LOCS.find(l=>l.id===activeId);
+  if(cur) drawChart(cur);
+});
+
+// ═══════════════════════════════════════════════════
+//  PWA — Inject Web App Manifest sebagai Blob URL
+// ═══════════════════════════════════════════════════
+(function injectManifest() {
+  const iconSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><rect width="512" height="512" rx="80" fill="#0b1520"/><text x="256" y="340" font-size="280" text-anchor="middle">🌊</text></svg>`;
+  const iconBlob = new Blob([iconSvg], {type:'image/svg+xml'});
+  const iconUrl  = URL.createObjectURL(iconBlob);
+
+  const manifest = {
+    name: 'ArusLaut — Nias Selatan & P. Batu',
+    short_name: 'ArusLaut',
+    description: 'Pemantauan arus laut kawasan Nias Selatan, Kep. Batu, Tello, Pini, Memong, Bais.',
+    start_url: './',
+    display: 'standalone',
+    orientation: 'any',
+    theme_color: '#0b1520',
+    background_color: '#0b1520',
+    lang: 'id',
+    categories: ['navigation', 'weather', 'utilities'],
+    icons: [
+      { src: iconUrl, sizes: '192x192', type: 'image/svg+xml', purpose: 'any maskable' },
+      { src: iconUrl, sizes: '512x512', type: 'image/svg+xml', purpose: 'any maskable' },
+    ],
+    shortcuts: [
+      {
+        name: 'Pulau Tello',
+        short_name: 'P. Tello',
+        description: 'Lihat arus Pulau Tello',
+        url: './',
+        icons: [{ src: iconUrl, sizes: '96x96' }]
+      }
+    ]
+  };
+
+  const blob = new Blob([JSON.stringify(manifest)], {type:'application/manifest+json'});
+  const url  = URL.createObjectURL(blob);
+  document.getElementById('manifestLink').href = url;
+})();
+
+// ═══════════════════════════════════════════════════
+//  PWA — Service Worker (daftarkan sw.js dari GitHub)
+// ═══════════════════════════════════════════════════
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js')
+      .then(() => console.log('[ArusLaut] Offline siap ✓'))
+      .catch(() => {}); // diam jika sw.js belum ada (file lokal)
+  });
+}
+
+// ═══════════════════════════════════════════════════
+//  PWA — Tombol Install (A2HS prompt)
+// ═══════════════════════════════════════════════════
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredPrompt = e;
+  const banner = document.getElementById('installBanner');
+  if (banner) banner.style.display = 'flex';
+});
+
+function installApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  deferredPrompt.userChoice.then(choice => {
+    if (choice.outcome === 'accepted') {
+      document.getElementById('installBanner').style.display = 'none';
+    }
+    deferredPrompt = null;
+  });
+}
+
+window.addEventListener('appinstalled', () => {
+  const banner = document.getElementById('installBanner');
+  if (banner) banner.style.display = 'none';
+  deferredPrompt = null;
+});
+</script>
+</body>
+</html>
